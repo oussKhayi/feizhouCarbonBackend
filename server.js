@@ -3,10 +3,14 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const port = 3001; // You can use any port you prefer
+// require detenv file :
 
+require("dotenv").config();
+console.log("process.env.CLIENT_SIDE");
+console.log(process.env.CLIENT_SIDE);
 app.use(
   cors({
-    origin: "*", // Replace with your actual frontend domain
+    origin: [process.env.CLIENT_SIDE], // Replace with your actual frontend domain
     credentials: true,
     methods: ["GET"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -14,13 +18,18 @@ app.use(
     optionsSuccessStatus: 200, // Some legacy browsers (IE11, various Android versions) choke on 204
   })
 );
-
+app.get("/", (req, res) => {
+  res.json({
+    message: "Welcome to the proxy server!",
+    version: "1.0.0",
+  });
+});
 app.get("/carbon", async (req, res) => {
   const { url } = req.query;
 
   try {
     const response = await fetch(
-      `https://api.websitecarbon.com/site?url=${encodeURIComponent(url)}`
+      `${process.env.CARBON_API}/site?url=${encodeURIComponent(url)}`
     );
     const data = await response.json();
     res.json(data);
